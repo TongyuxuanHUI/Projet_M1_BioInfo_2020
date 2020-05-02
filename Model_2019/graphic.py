@@ -179,13 +179,20 @@ def createGraph(data,neurotransmitters,option=0):
             colors[population] = "xkcd:"+random.choice(listColors)
     
     ### translate the time initially in ms to hours
-    step_hour = 5
     time_ms = []
     time_h = []
-    for t in range(int(data['time'][-1])) :
-        if t % (60*60*step_hour) == 0 :
-            time_ms.append(t)
-            time_h.append(int(t/(60*60)))
+    if data['time'][-1] <= 3600 :
+        step_hour = 0.25
+        for t in range(int(data['time'][-1])) :
+            if t % (60*60*step_hour) == 0 :
+                time_ms.append(t)
+                time_h.append(int(t)/60)
+    else :
+        step_hour = 5
+        for t in range(int(data['time'][-1])) :
+            if t % (60*60*step_hour) == 0 :
+                time_ms.append(t)
+                time_h.append(int(t/(60*60)))
 
     plt.figure(1)
 
@@ -208,7 +215,7 @@ def createGraph(data,neurotransmitters,option=0):
                 for (fr, values) in data[sem]["firing rates"].items() :
                     sub1=plt.plot(data['time'], values, color=colors[fr], linewidth=0.25)
                     sub1=plt.fill_between(data['time'],values,data['firing rates'][fr],color=colors[fr],alpha=0.25)
-
+        
         xticks(time_ms,time_h)
         plt.ylabel('Activity (Hz)')
         plt.legend(loc='best')
@@ -249,7 +256,10 @@ def createGraph(data,neurotransmitters,option=0):
         plt.ylim(-0.5,1.5)
         xticks(time_ms,time_h)
         yticks([0,0.5,1],['NREM','REM','Wake'])
-        plt.xlabel('Time (h)')
+        if data['time'][-1]<=3600:
+            plt.xlabel('Time (min)')
+        else : 
+            plt.xlabel('Time (h)')
         plt.ylabel('Hypnogram')
 
     if option != "control" :
